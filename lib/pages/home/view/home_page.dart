@@ -5,7 +5,8 @@ import 'package:tdd/pages/home/controller/home_controller.dart';
 import 'package:http/http.dart' as http;
 
 class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+  final HomeController controller;
+  const HomePage({super.key, required this.controller});
   @override
   Widget build(BuildContext context) {
     return Scaffold(

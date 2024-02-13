@@ -14,9 +14,19 @@ import 'package:http/http.dart' as http;
 class MockAuthController extends Mock implements AuthController {}
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  late MockAuthController mockAuthController;
+  late AuthController authController;
+  setUpAll(() {
+    mockAuthController = MockAuthController();
+    authController = AuthController(client: http.Client());
+  });
   group('Test Loging Page', () {
     testWidgets('LoginPage Widget Test', (WidgetTester tester) async {
-      await tester.pumpWidget(const GetMaterialApp(home: LoginPage()));
+      await tester.pumpWidget(GetMaterialApp(
+          home: LoginPage(
+        controller: authController,
+      )));
       await tester.pump(Duration(seconds: 5));
       expect(find.widgetWithText(AppBar, 'Login'), findsOneWidget);
       // expect(find.byKey(testKey), findsOneWidget);
@@ -32,44 +42,37 @@ void main() {
       // await tester.pumpWidget(LoginPage());
     });
 
-    late MockAuthController mockAuthController;
-    late AuthController authController;
-    setUp(() {
-      mockAuthController = MockAuthController();
-      authController = AuthController(client: http.Client());
-    });
     testWidgets('LoginPage Widget Test', (WidgetTester tester) async {
+      final GlobalKey<FormState> formKeyTest = GlobalKey<FormState>();
+
       await tester.pumpWidget(GetMaterialApp(
-          home: Scaffold(
-              body: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-        TextFormField(
-          key: Key('emailField'),
-          initialValue: 'Username',
-          onChanged: (_) => mockAuthController.updateUsername('Username'),
-        ),
-        TextFormField(
-          key: Key('passwordField'),
-          validator: Validators().passwordValidator,
-          onChanged: (_) => mockAuthController.updatePassword('Password'),
-        ),
-        ElevatedButton(
-          key: Key('loginButton'),
-          onPressed: () async {
-            //
-          },
-          child: const Text('Login'),
-        ),
-      ]))));
-      await tester.pump();
-      Finder emailField = find.byKey(Key('emailField'));
-      await tester.enterText(emailField, 'emailField');
+        home: LoginPage(controller: authController),
+      ));
+      // expect(find.text('Username'), findsOneWidget);
+      // expect((tester.widget(find.byKey(Key('userField'))) as TextFormField).initialValue, equals('Username'));
+      // expect((tester.widget(find.byKey(Key('passwordField'))) as TextFormField).initialValue, equals('Password'));
+      // print("HELLO1");
+      // expect(formKeyTest.currentState!.validate(), false);
+      // print("HELLO1+");
+      await tester.pump(Duration(seconds: 2));
+      final userKey = find.byKey(Key('userField'));
+      final passKey = find.byKey(Key('passwordField'));
+      // await tester.tap(userKey);
+      await tester.enterText(userKey, 'michael');
+      expect(authController.username, 'michael');
+      await tester.enterText(passKey, 'success-password');
+      expect(authController.password, 'success-password');
 
-      Finder passwordField = find.byKey(Key('passwordField'));
-      await tester.enterText(passwordField, 'passwordField');
+      // await tester.tap(find.byKey(Key('loginButton')));
 
+      //
+      // Finder emailField = find.byKey(Key('userField'));
+      // await tester.enterText(emailField, 'userField');
+      //
+      // Finder passwordField = find.byKey(Key('passwordField'));
+      // await tester.enterText(passwordField, 'passwordField');
 
-
-      debugPrint(authController.username);
+      // debugPrint(authController.username);
       // expect(authController.username, 'Username');
       // final Finder finder = find.byKey(const Key('loginButton'));
       // expect(finder, findsOneWidget);

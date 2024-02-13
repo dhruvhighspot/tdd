@@ -5,7 +5,6 @@ import 'package:tdd/main.dart';
 
 void main() {
   testWidgets('MyApp widget test', (WidgetTester tester) async {
-    TestWidgetsFlutterBinding.ensureInitialized();
     await tester.pumpWidget(
       const MyApp(),
     );

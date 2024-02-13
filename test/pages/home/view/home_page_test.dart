@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:tdd/pages/auth/controller/auth_controller.dart';
 import 'package:tdd/pages/home/controller/home_controller.dart';
 import 'package:tdd/pages/home/model/home_model.dart';
 import 'package:tdd/pages/home/view/home_page.dart';
@@ -37,7 +36,10 @@ void main() {
                           height: Get.height * 0.8, child: const Center(child: CircularProgressIndicator()));
                     })),
               ))));
-      await tester.pumpWidget(const GetMaterialApp(home: HomePage()));
+      await tester.pumpWidget(GetMaterialApp(
+          home: HomePage(
+        controller: homeController,
+      )));
       await tester.pump(Duration(seconds: 5));
       // Act
       expect(find.widgetWithText(AppBar, 'Users List'), findsOneWidget);
@@ -46,10 +48,45 @@ void main() {
       expect(find.byType(ListTile), findsOneWidget);
       expect(find.byType(Icon), findsOneWidget);
     });
-    // testWidgets('HomePage displays loading indicator before users are loaded', (WidgetTester tester) async {
+    testWidgets('HomePage displays loading indicator before users are loaded', (WidgetTester tester) async {
+      // await homeController.todoRequest();
+      List<UsersResponse> userListMock = <UsersResponse>[
+        UsersResponse(
+            id: 1,
+            name: "Emily Johnson",
+            company: "ABC Corporation",
+            username: "emily_johnson",
+            email: "emily.johnson@abccorporation.com",
+            address: "123 Main St",
+            zip: "12345",
+            state: "California",
+            country: "USA",
+            phone: "+1-555-123-4567",
+            photo: "http://placeimg.com/640/480/people"),
+        UsersResponse(
+            id: 2,
+            name: "Emily Johnson",
+            company: "ABC Corporation",
+            username: "emily_johnson",
+            email: "emily.johnson@abccorporation.com",
+            address: "123 Main St",
+            zip: "12345",
+            state: "California",
+            country: "USA",
+            phone: "+1-555-123-4567",
+            photo: "http://placeimg.com/640/480/people")
+      ];
+      await tester.pumpWidget(GetMaterialApp(home: HomePage(controller: homeController)));
+
+      when(() => homeController.isLoading.value).thenReturn(false);
+      when(() => homeController.userDataList.value).thenReturn(userListMock);
+      await tester.pump(Duration(seconds: 3));
+      print(homeController.userDataList.length);
+      print(homeController.isLoading..value);
+    });
     //   // Mock your HomeController or its response if necessary
     //
-    //   await tester.pumpWidget(GetMaterialApp(home: HomePage()));
+    //
     //
     //   // Initially, you might show a loading indicator or a blank list
     //   // For simplicity, let's assume the initial state shows a CircularProgressIndicator

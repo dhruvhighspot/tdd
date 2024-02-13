@@ -3,13 +3,17 @@ import 'package:get/get.dart';
 import 'package:tdd/constants/validators.dart';
 import 'package:tdd/pages/auth/controller/auth_controller.dart';
 import 'package:http/http.dart' as http;
+import 'package:tdd/pages/home/controller/home_controller.dart';
 import 'package:tdd/pages/home/view/home_page.dart';
 
 class LoginPage extends StatelessWidget {
-  const LoginPage({super.key});
+  final AuthController controller;
+  const LoginPage({super.key, required this.controller});
   @override
   Widget build(BuildContext context) {
-    AuthController authController = Get.put(AuthController(client: http.Client()));
+    // AuthController authController = Get.put(AuthController(client: http.Client()));
+    HomeController homeController = Get.put(HomeController(client: http.Client()));
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Login'),
@@ -17,14 +21,14 @@ class LoginPage extends StatelessWidget {
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Form(
-          key: authController.formKey,
+          key: controller.formKey,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               TextFormField(
-                key: Key('emailField'),
+                key: Key('userField'),
                 validator: Validators().usernameValidator,
-                onChanged: (_) => authController.updateUsername(_),
+                onChanged: (_) => controller.updateUsername(_),
                 decoration: InputDecoration(
                   labelText: 'Username',
                 ),
@@ -33,7 +37,7 @@ class LoginPage extends StatelessWidget {
               TextFormField(
                 key: Key('passwordField'),
                 validator: Validators().passwordValidator,
-                onChanged: (_) => authController.updatePassword(_),
+                onChanged: (_) => controller.updatePassword(_),
                 obscureText: true,
                 decoration: InputDecoration(
                   labelText: 'Password',
@@ -43,12 +47,17 @@ class LoginPage extends StatelessWidget {
               ElevatedButton(
                 key: Key('loginButton'),
                 onPressed: () async {
-                  if (authController.formKey.currentState!.validate()) {
-                    final resp = await authController.loginRequest();
+                  if (controller.formKey.currentState!.validate()) {
+                    final resp = await controller.loginRequest();
                     if (resp.success == true) {
-                      Get.off(() => HomePage());
+                      Get.off(() => HomePage(
+                            controller: homeController,
+                          ));
                     } else {
-                      Get.snackbar(resp.error!.code.toString(), resp.error!.message.toString());
+                      Get.snackbar(
+                        resp.error!.code.toString(),
+                        resp.error!.message.toString(),
+                      );
                     }
                     // Handle login logic here
                   }
